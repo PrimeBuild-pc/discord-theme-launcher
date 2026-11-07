@@ -7,12 +7,18 @@ namespace CommunityThemes;
 public static class ThemeCompiler
 {
     public const string PersonalFile = "PersonalServer.theme.css";
-    private static string Resource(string name)
+    internal static string Resource(string name)
     {
         using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(name) ?? throw new InvalidDataException("Bundled theme resource is missing.");
         using var reader = new StreamReader(stream); return reader.ReadToEnd();
     }
     public static Catalog BundledCatalog => Catalog.Parse(Resource("catalog.json"));
+    public static string ServerScope(string guild)
+    {
+        guild = ThemeConfiguration.ParseGuild(guild);
+        string css = PresetCss("primebuild"); int start = css.IndexOf("@scope", StringComparison.Ordinal);
+        return css[start..css.IndexOf('{', start)].Trim().Replace(BundledCatalog.Themes.Single(t => t.Id == "primebuild").Guild, guild);
+    }
     public static string PresetCss(string id)
     {
         var theme = BundledCatalog.Themes.SingleOrDefault(t => t.Id == id) ?? throw new InvalidDataException("Unknown preset.");
@@ -25,6 +31,12 @@ public static class ThemeCompiler
     public static string ArtworkDataUri(string preset, string area)
     {
         if (area is not ("header" or "chat")) throw new InvalidDataException("Unknown artwork area.");
+        if (preset == "zenit-gold")
+        {
+            var root = CssSyntax.Rules(Resource("zenit.css")).First(r => r.Header == ":root");
+            var image = CssSyntax.Declarations(root.Body!).First(d => d.Property == "--zg-banner").Value;
+            return image[5..^2];
+        }
         var value = Value(PresetCss(preset), area == "header" ? "hardware-art" : "chat-art");
         return value[5..^2];
     }
@@ -32,8 +44,9 @@ public static class ThemeCompiler
     public static string Compile(ThemeConfiguration config)
     {
         config.Validate();
-        var preset = BundledCatalog.Themes.Single(t => t.Id == config.Preset);
-        string css = PresetCss(config.Preset);
+        if (config.Imported is not null) return CssThemeImporter.Compile(config.Imported, config.Guild);
+        var preset = BundledCatalog.Themes.Single(t => t.Id == (config.Preset == "fluent" ? "primebuild" : config.Preset));
+        string css = PresetCss(preset.Id);
         css = css[css.IndexOf("@scope", StringComparison.Ordinal)..].Replace(preset.Guild, config.Guild);
         string face = "";
         if (config.Font == "custom")
@@ -63,7 +76,7 @@ public static class ThemeCompiler
             css = Set(css, "border-strong", "#969eaf");
             int last = css.LastIndexOf('}');
             string foreground = ThemeConfiguration.Luminance(accent) < .2 ? "#fafafb" : "#16100b";
-            css = css.Insert(last, "\n  .lookFilled__201d5.colorBrand__201d5, .unreadPill__908e2 { color: " + foreground + "; }\n  .lookFilled__201d5.colorBrand__201d5:hover { color: #16100b; }\n");
+            css = css.Insert(last, "\n  :is(.lookFilled__201d5, .lookFilled_9OQtot):is(.colorBrand__201d5, .colorBrand_9OQtot), :is(.unreadPill__908e2, .unreadPill_4TfzT5) { color: " + foreground + "; }\n  :is(.lookFilled__201d5, .lookFilled_9OQtot):is(.colorBrand__201d5, .colorBrand_9OQtot):hover { color: #16100b; }\n");
         }
         else
         {
@@ -81,9 +94,15 @@ public static class ThemeCompiler
         if (config.Background == "custom")
         {
             int last = css.LastIndexOf('}');
-            css = css.Insert(last, "\n  .chatContent_f75fb0, .container_f369db { background-image: linear-gradient(#101013ed, #101013ed), var(--pb-chat-art); background-size: cover; background-position: center; }\n");
+            css = css.Insert(last, "\n  :is(.chatContent_f75fb0, .chatContent_z_gUBg), :is(.container_f369db, .container_BkGrJJ) { background-image: linear-gradient(#101013ed, #101013ed), var(--pb-chat-art); background-size: cover; background-position: center; }\n");
         }
         css = Set(css, "profile", "\"personal\"");
+        if (config.Preset == "fluent")
+        {
+            css = Set(css, "header-height", config.Banner == "none" ? "56px" : "112px");
+            // Neutral headings use Discord's native sizing as well as its native family.
+            css = Regex.Replace(css, @"font-size:\s*(?:22|18|16)px;", "font-size: inherit;");
+        }
         return "/* @name Personal Server Theme\n * @author PrimeBuild\n * @version " + BundledCatalog.Version + "\n * Local client styling for server " + config.Guild + ". Generated from a validated .dtheme configuration.\n */\n" + face + css;
     }
 

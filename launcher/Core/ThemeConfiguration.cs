@@ -17,19 +17,20 @@ public sealed record ThemeConfiguration
 {
     public int Schema { get; init; } = 1;
     public string Name { get; init; } = "My server theme";
-    public string Guild { get; init; } = "1206415718728601600";
-    public string Preset { get; init; } = "primebuild";
-    public string Palette { get; init; } = "primebuild";
-    public string Accent { get; init; } = "#ff6600";
-    public string Surface { get; init; } = "#101013";
-    public string Font { get; init; } = "primebuild";
-    public string Banner { get; init; } = "primebuild";
-    public string Background { get; init; } = "primebuild";
+    public string Guild { get; init; } = "";
+    public string Preset { get; init; } = "fluent";
+    public string Palette { get; init; } = "custom";
+    public string Accent { get; init; } = "#8791ff";
+    public string Surface { get; init; } = "#202020";
+    public string Font { get; init; } = "native";
+    public string Banner { get; init; } = "none";
+    public string Background { get; init; } = "none";
     public ThemeAsset? CustomFont { get; init; }
     public ThemeAsset? CustomBanner { get; init; }
     public ThemeAsset? CustomBackground { get; init; }
+    public ImportedTheme? Imported { get; init; }
     public const int MaxFileBytes = 24 * 1024 * 1024;
-    public static readonly string[] Presets = ["primebuild", "primebuild-dev", "fantafort"];
+    public static string[] Presets => ThemeCompiler.BundledCatalog.Themes.Select(t => t.Id).ToArray();
     public static readonly string[] Palettes = ["primebuild", "primebuild-dev", "fantafort", "blurple", "custom"];
 
     public static string ParseGuild(string input)
@@ -51,7 +52,8 @@ public sealed record ThemeConfiguration
         if (Schema != 1) throw new InvalidDataException("This configuration version is not supported.");
         if (string.IsNullOrWhiteSpace(Name) || Name.Length > 80 || Name.Any(char.IsControl)) throw new InvalidDataException("Use a theme name of 1–80 characters.");
         if (Guild != ParseGuild(Guild)) throw new InvalidDataException("Save the target as a server ID.");
-        if (!Presets.Contains(Preset) || !Palettes.Contains(Palette) || !Presets.Append("native").Append("custom").Contains(Font) ||
+        if (Imported is not null) _ = CssThemeImporter.Compile(Imported, Guild);
+        if (!Presets.Append("fluent").Contains(Preset) || !Palettes.Contains(Palette) || !Presets.Append("native").Append("custom").Contains(Font) ||
             !Presets.Append("none").Append("custom").Contains(Banner) || !Presets.Append("none").Append("custom").Contains(Background))
             throw new InvalidDataException("Unknown preset, palette, font or artwork choice.");
         if (Accent is null || Surface is null || !Regex.IsMatch(Accent, "^#[a-fA-F0-9]{6}$") || !Regex.IsMatch(Surface, "^#[a-fA-F0-9]{6}$")) throw new InvalidDataException("Colors must use #RRGGBB.");

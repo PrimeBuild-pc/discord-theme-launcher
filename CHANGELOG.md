@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.0-beta.8 - 2026-11-07 (unreleased)
+
+- Start in neutral Fluent Dark with an explicit server target; organize Create, Community and My themes.
+- Add Zenit Gold — by JACKPOT71 with pinned MIT source/artwork and an offline Montserrat server adaptation.
+- Import downloaded compatible BetterDiscord CSS, review resources/limitations, edit supported author variables, and save/reopen/share portable configurations or export original bytes. Unsupported CSS is rejected before configuration or profile changes.
+- Generalize catalog metadata and historical recovery; preserve exact managed bytes, Vencord runtime files and unrelated preferences.
+- Add complete German native/editor copy and persistent language choice; retain English, Italian, Spanish and Russian.
+- Add a real theme-submission issue template and configurable Discord destination.
+- Keep all beta.7 November class fixes and startup/recovery regressions.
+- Draft build only: unsigned; accessible-desktop, live-account and Windows reboot checks remain pending.
+
+## 0.3.0-beta.7 - 2026-11-07 (unreleased)
+
+- Restore the three server themes after Discord changed its CSS class names. Keep exact aliases for the previous and current layouts, including personal theme typography and custom backgrounds.
+- Preserve the selected-server guard: other servers, DMs and unknown layouts remain outside the theme.
+- Add regression coverage for all three presets and personal themes using the November Discord classes.
+
 ## 0.3.0-beta.6 - 2026-11-06
 
 - Repair a Discord install that still loads Vencord when `patcher.js` is missing, instead of opening the JavaScript error window.
