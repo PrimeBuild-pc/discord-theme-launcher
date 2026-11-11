@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0-beta.7 - 2026-11-07 (unreleased)
+
+- Restore the three server themes after Discord changed its CSS class names. Keep exact aliases for the previous and current layouts, including personal theme typography and custom backgrounds.
+- Preserve the selected-server guard: other servers, DMs and unknown layouts remain outside the theme.
+- Add regression coverage for all three presets and personal themes using the November Discord classes.
+- Release consumed WebView2 response buffers instead of retaining a history until the editor closes.
+- Cache verified bundled presets and keep image payloads out of repeated CSS rewrites to reduce compilation allocations.
+- Downscale new artwork imports to at most 1920 px per side and 2,073,600 pixels, preserving aspect ratio and transparency. Existing shared assets retain their bytes.
+- Remove the hidden photo decoration box below the existing chat-width threshold.
+
 ## 0.3.0-beta.6 - 2026-11-06
 
 - Repair a Discord install that still loads Vencord when `patcher.js` is missing, instead of opening the JavaScript error window.

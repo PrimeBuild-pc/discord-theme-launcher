@@ -10,7 +10,6 @@ internal sealed class StudioSurface : Panel
 {
     internal const string Origin = "https://theme-preview.invalid/";
     private readonly WebView2 web = new() { Dock = DockStyle.Fill, DefaultBackgroundColor = LauncherStyle.Surface };
-    private readonly List<Stream> staticResponses = [], previewResponses = [];
     private readonly Label fallback = new() { Dock = DockStyle.Fill, ForeColor = LauncherStyle.Text, Padding = new Padding(36), Text = UiText.Text("Opening Theme Studio…") };
     private string previewHtml = "";
     private bool loaded;
@@ -66,8 +65,8 @@ internal sealed class StudioSurface : Panel
                         { var data = ThemeCompiler.ArtworkDataUri(parts[2], parts[3]); bytes = Convert.FromBase64String(data[(data.IndexOf(',') + 1)..]); mime = "image/svg+xml"; allowed = true; }
                     }
                 }
-                var response = new MemoryStream(bytes);
-                (uri.AbsolutePath == "/preview" ? previewResponses : staticResponses).Add(response);
+                // WebView2 retains the managed stream while reading; keep no history of response buffers.
+                var response = new MemoryStream(bytes, writable: false);
                 e.Response = environment.CreateWebResourceResponse(response, allowed ? 200 : 403, allowed ? "OK" : "Blocked", "Content-Type: " + mime + "; charset=utf-8\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff");
             };
             core.NavigationCompleted += (_, e) =>
@@ -88,7 +87,6 @@ internal sealed class StudioSurface : Panel
                     {
                         if (message.GetProperty("id").GetString() != PreviewId) return;
                         Ready = message.GetProperty("ready").GetBoolean();
-                        foreach (var stream in previewResponses) stream.Dispose(); previewResponses.Clear();
                     }
                     MessageReceived?.Invoke(message.Clone());
                 }
@@ -114,7 +112,7 @@ internal sealed class StudioSurface : Panel
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing) { web.Dispose(); foreach (var response in staticResponses.Concat(previewResponses)) response.Dispose(); }
+        if (disposing) web.Dispose();
         base.Dispose(disposing);
     }
 }

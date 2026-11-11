@@ -39,7 +39,7 @@ Choose your server, typography, palette, banner and background in a Discord-insp
 | Banner / background | Three original artwork sets, or no artwork | PNG / JPEG, up to 8 MiB each and 4096 px per side |
 | Configuration | Editable community starting points | Save, reopen and share a `.dtheme` file with its selected assets |
 
-Imported images become static PNG without original metadata; imported backgrounds receive a dark readability overlay. Fonts affect headings and navigation only. Variable fonts, collections, imported WOFF/WOFF2, SVG and GIF are outside this version. Use assets you have permission to share. Font import requires license text and confirmation of embedding and redistribution rights; restricted embedding flags are rejected.
+Imported images become static PNG without original metadata, downscaled when needed to at most 1920 px per side and 2,073,600 pixels to limit decoded memory. Imported backgrounds receive a dark readability overlay. Fonts affect headings and navigation only. Variable fonts, collections, imported WOFF/WOFF2, SVG and GIF are outside this version. Use assets you have permission to share. Font import requires license text and confirmation of embedding and redistribution rights; restricted embedding flags are rejected.
 
 ## Quick setup
 
