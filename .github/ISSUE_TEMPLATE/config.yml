@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions about setup or use
+    url: https://github.com/PrimeBuild-pc/discord-theme-launcher#readme
+    about: The README explains setup, isolation and restoration. Check it before opening an issue.
