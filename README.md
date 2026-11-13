@@ -25,10 +25,6 @@
   <img src="docs/media/theme-studio-demo.gif" width="860" alt="Theme Studio demo: templates, style, artwork and theme files next to the live preview">
   <br><sub>Real screen recording of beta.16 with the illustrative preview (synthetic conversations).</sub>
 </p>
-<p align="center">
-  <img src="assets/theme-studio-create.png" width="1100" alt="Theme Studio editor and live Discord preview with synthetic conversations">
-  <br><sub>Local editing and an illustrative preview. Theme application requires your confirmation.</sub>
-</p>
 
 <h2 id="why-theme-studio">Your theme, your chosen conversations</h2>
 
@@ -191,7 +187,7 @@ Edit UI copy in `launcher/Windows/ui/studio-copy.json` and `studio-de.json`, the
 
 discord-theme-launcher is free and open source. If it helps you, you can support its development:
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y6U02AIRB8) [![PayPal](https://img.shields.io/badge/Support-PayPal-0070BA?logo=paypal&logoColor=white)](https://paypal.me/PrimeBuildOfficial)
+[![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/primebuild) [![PayPal](https://img.shields.io/badge/Support-PayPal-0070BA?style=flat-square&logo=paypal&logoColor=white)](https://paypal.me/PrimeBuildOfficial)
 
 <h2 id="license-and-credits">License &amp; credits</h2>
 
