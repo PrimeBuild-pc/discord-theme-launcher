@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest an improvement to the launcher or the theme.
+title: '[Feature] '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What do you want to do?
+      description: Describe the goal, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: What do you do today?
+      description: How you get there now, and what is missing or awkward about it.
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Discord, Vencord and Windows setup
+      description: Discord host/build, Vencord version or commit, Windows version, and launcher/theme version.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Optional. Include a sanitized screenshot or mock-up if it helps; remove private messages, account details, tokens and API keys first.
