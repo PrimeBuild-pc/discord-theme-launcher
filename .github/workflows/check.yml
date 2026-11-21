@@ -7,12 +7,18 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: theme-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
@@ -29,6 +35,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.0.x'
@@ -36,6 +44,44 @@ jobs:
       - run: dotnet run --project launcher/WindowsTests/WindowsTests.csproj -c Release
       - run: ./scripts/package-windows.ps1
         shell: pwsh
+      - name: Verify the final Windows release files
+        shell: pwsh
+        run: |
+          $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+          if ($version -cnotmatch '\A[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+\z') {
+            throw 'Expected a beta package version.'
+          }
+          $names = "DiscordThemeLauncher-$version-windows-x64"
+          $themes = 'PrimeBuild.theme.css', 'PrimeBuildDev.theme.css', 'FantaFort.theme.css'
+          $expected = foreach ($file in @("$names.exe", "$names-portable.zip", 'catalog.json') + $themes) {
+            $hash = (Get-FileHash -LiteralPath "dist/release/$file" -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $file"
+          }
+          $checksums = Get-Content -LiteralPath dist/release/SHA256SUMS.txt
+          if (Compare-Object -ReferenceObject $expected -DifferenceObject $checksums -CaseSensitive) {
+            throw 'Release checksums do not match the final files.'
+          }
+          $archive = [IO.Compression.ZipFile]::OpenRead((Resolve-Path "dist/release/$names-portable.zip"))
+          try {
+            foreach ($file in @('DiscordThemeLauncher.exe', 'LICENSE.txt', 'START-HERE.txt') + $themes) {
+              $entry = $archive.GetEntry($file)
+              if (!$entry -or $entry.Length -le 0) { throw "Missing or empty portable file: $file." }
+              if ($file -eq 'DiscordThemeLauncher.exe' -or $file -in $themes) {
+                $standaloneName = if ($file -eq 'DiscordThemeLauncher.exe') { "$names.exe" } else { $file }
+                $stream = $entry.Open()
+                try {
+                  $packed = (Get-FileHash -InputStream $stream -Algorithm SHA256).Hash
+                } finally {
+                  $stream.Dispose()
+                }
+                $standalone = (Get-FileHash -LiteralPath "dist/release/$standaloneName" -Algorithm SHA256).Hash
+                if ($packed -cne $standalone) { throw "Portable file differs from the standalone asset: $file." }
+              }
+            }
+          } finally {
+            $archive.Dispose()
+          }
+          "Verified Windows beta package $version from $env:GITHUB_SHA." >> $env:GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: windows-release
