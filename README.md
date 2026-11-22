@@ -173,6 +173,8 @@ dotnet run --project launcher/WindowsTests/WindowsTests.csproj -c Release
 
 `npm run verify` regenerates the themes and runs CSS/resource audits, JavaScript checks, Core tests and Chromium tests. Windows integration exercises the real WebView2 host. Packaging writes the executable, portable ZIP, standalone preset CSS, catalog, licenses and release checksums under `dist/release`.
 
+To preview a Windows beta, open the **Check theme** run for the commit in GitHub Actions and download the **windows-release** artifact. Keep **SHA256SUMS.txt** with the extracted files when checking their hashes.
+
 | Location | Responsibility |
 | --- | --- |
 | `launcher/Core` | Configuration, CSS import/compilation, local libraries and reversible theme transactions. |
